@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>E-pharma-App</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+   <script>
+       var app = angular.module('myApp', []);
+       app.controller('customersCtrl', function ($scope, $http, $location) {
+
+           $scope.ProfileType = 'User';
+           $scope.Questions = [];
+           $scope.Doctors =[] ;
+           $scope.Index = 1;
+$scope.TestSubmitted = false;
+
+
+
+           $scope.Load = function () {
+               $http.get("assets/Data/Questions.json")
+                   .then(function (response) {
+                       console.log(response.data);
+                       $scope.Questions = response.data;
+                       for (var i = 0; i < $scope.Questions .length; i++) {
+                           $scope.Questions[i].SelectedOption = 0;
+                       }
+
+                   });
+
+
+
+
+
+
+               $http.get("assets/api/GetUsers.php?all").then(function (response) {
+                    $scope.Users = response.data;
+                    //alert(JSON.stringify($scope.Users.length));
+                    $scope.Doctors = []; $scope.Pathologies = []; $scope.Hospitals = []; $scope.MedicalShops = [];
+                    for (var n = 0; n < $scope.Users.length; n++) {
+                        if ($scope.Users[n].ProfileType == 'Doctor') $scope.Doctors.push($scope.Users[n]);
+                    }
+
+                });
+
+
+           }
+           $scope.Load();
+           $scope.Next = function () {
+               if ($scope.Index ==  $scope.Questions .length) return;
+               $scope.Index++;
+               
+           }
+           $scope.Prev = function () {
+               if ($scope.Index == 1) return;
+               $scope.Index--;
+               
+           }
+           $scope.SelectOption = function (Question, Option) {
+               Question.SelectedOption = Option;
+               
+           }
+
+           
+           $scope.SubmitTest = function () {
+               
+               $scope.TestSubmitted = true;
+           }
+
+
+
+       });
+       function Transition(Page) {
+
+           location.assign(Page);
+
+       }
+
+    </script>
+</head>
+
+<body ng-app="myApp" onload="Load()" ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+    <div class="container d-flex" style="margin-top: 20px;">
+        <h6 class="text-secondary d-flex flex-fill align-items-center"><button class="btn btn-primary border rounded-circle" type="button"><i class="fa fa-question-circle"></i></button>&nbsp;Mental Health Check</h6><img src="assets/img/People%20Doctor%20Male64.png" style="width: 48px;"></div>
+    <hr>
+    <div class="container" style="height: 100%;margin-bottom: 50px;" ng-show="!TestSubmitted">
+        <div class="card shadow" ng-repeat="Question in Questions" ng-show="Index==($index+1)">
+            <div class="card-body">
+                <h6 class="card-title">Question - {{$index+1}}/10</h6>
+                <p class="text-muted card-text"><b>{{Question.Question}}</b></p>
+
+                <ul class="list-group">
+                    <li class="list-group-item" ng-show="Question.Option1" ng-click="SelectOption(Question,1)" ng-class="(Question.SelectedOption==1)?'list-group-item-success':''"><span>{{Question.Option1}}</span></li>
+                    <li class="list-group-item" ng-show="Question.Option2" ng-click="SelectOption(Question,2)" ng-class="(Question.SelectedOption==2)?'list-group-item-success':''"><span>{{Question.Option2}}</span></li>
+                    <li class="list-group-item" ng-show="Question.Option3" ng-click="SelectOption(Question,3)" ng-class="(Question.SelectedOption==3)?'list-group-item-success':''"><span>{{Question.Option3}}</span></li>
+                    <li class="list-group-item" ng-show="Question.Option4" ng-click="SelectOption(Question,4)" ng-class="(Question.SelectedOption==4)?'list-group-item-success':''"><span>{{Question.Option4}}</span></li>
+
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="height: 100%;margin-bottom: 70px;" ng-show="TestSubmitted" >
+    <div class="card shadow-sm mb-3" ng-repeat="Doctor in Doctors">
+        <div class="card-body">
+            <div class="media">
+                <div class="media-body">
+                  <h6><img class="mr-3" src="assets/img/People%20Doctor%20Male64.png" style="width: 32px;">{{Doctor.UserName}}</h6>
+                                    <hr style="margin-top: 8px;margin-bottom: 15px;">
+                                    <p></p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-map-marker"></i>&nbsp;{{Doctor.UserName}}</p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-phone"></i>&nbsp;+91-{{Doctor.Mobile}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</div>
+
+
+
+    <nav class="navbar navbar-light navbar-expand fixed-bottom bg-white shadow-lg" style="padding: 0px;">
+        <div class="container-fluid">
+            <div class="col text-right" style="padding: 14px;">
+            <button ng-show="Index==10" ng-click="SubmitTest()" class="btn btn-dark" type="button">Submit Test</button>
+            </div>
+            <div class="col text-right" style="padding: 14px;">
+                <div class="btn-group" role="group">
+                <button class="btn btn-primary" ng-click="Prev()" type="button">Prev</button>
+                <button class="btn btn-primary" ng-click="Next()" type="button">Next</button></div>
+            </div>
+        </div>
+    </nav>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

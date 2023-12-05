@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http, $location) {
+
+            $scope.Email = $scope.PWD = null;
+
+            $scope.Login = function () {
+                $http.get("assets/api/LoginApi.php?Email=" + $scope.Email + "&PWD=" + $scope.PWD)
+                .then(function (response) {
+                    
+                    if (response.data.Status == 'Success') { location.assign('index.html'); return; }
+                    else {
+                        alertify.error(response.data.Message);
+                    }
+
+                    
+                });
+
+
+            }
+
+        });
+
+        function Load() {
+            $('#Body').attr('hidden', false);
+            $('#Body').fadeIn('fast', 'swing', function () { });
+        }
+        function Transition(Page) {
+
+            location.assign(Page);
+
+        }
+
+    </script>
+</head>
+
+<body ng-app="myApp" onload="Load()" ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+    <div class="shadow-lg login-card">
+        <img class="profile-img-card" src="assets/img/Bag.png">
+        <h4 class="text-center text-success">Real Time Medical Help</h4>
+        <h6 class="text-center text-secondary">An Online Medical Solution</h6>
+        <!--<div class="alert alert-danger" role="alert"><span><strong>Alert</strong> text.</span></div>-->
+        <p class="profile-name-card"> </p>
+        <form class="form-signin">
+            <span class="reauth-email"> </span>
+            <input class="form-control" type="email" id="Email" required ng-model="Email" placeholder="Email address" autofocus="" name="Email">
+            <input class="form-control" type="password" id="PWD" ng-model="PWD" required placeholder="Password" name="PWD">
+            <button ng-click="Login()" class="btn btn-primary btn-block btn-lg btn-signin" type="submit"><i class="fa fa-check btn-signin"></i>&nbsp;Sign in</button>                                  
+            <a class="btn btn-success btn-block"  href="signup.html" ><i class="fa fa-plus"></i><strong>&nbsp;New User</strong></a>
+        </form>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

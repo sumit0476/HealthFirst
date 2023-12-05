@@ -1,0 +1,275 @@
+﻿<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css" />
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link
+      rel="stylesheet"
+      href="assets/alertifyjs/css/themes/default.min.css"
+    />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+      var app = angular.module("myApp", []);
+      app.controller("customersCtrl", function ($scope, $http, $location) {
+        $scope.ProfileType = "User";
+        $scope.User = { UID: 0, UserName: "", Mobile: "", ProfileType: "User" };
+
+        $scope.SignUp = function () {
+          //   alert(
+          //     "assets/api/SignUpApi.php?Name=" +
+          //       $scope.Name +
+          //       "&Mobile=" +
+          //       $scope.Mobile +
+          //       "&Email=" +
+          //       $scope.Email +
+          //       "&Address=" +
+          //       $scope.Address +
+          //       "&Services=" +
+          //       $scope.Services +
+          //       "&RegCode=" +
+          //       $scope.RegCode +
+          //       "&PWD=" +
+          //       $scope.PWD
+          //   );
+          //   return;
+          var Valid = true;
+          if ($scope.User.ProfileType == "Not Selected") {
+            alertify.error("Profile Not Selected");
+            Valid = false;
+          }
+          if ($scope.User.UserName == null) {
+            alertify.error("Name Can not be Blank");
+            Valid = false;
+          }
+          if ($scope.User.Mobile == null || $scope.User.Mobile.length != 10) {
+            alertify.error("Invalid mobile Number");
+            Valid = false;
+          }
+          if ($scope.User.Email == null) {
+            alertify.error("Invalid Email ID");
+            Valid = false;
+          }
+
+          if ($scope.User.Address == null) {
+            alertify.error("Address Can not be Blank");
+            Valid = false;
+          }
+          if (
+            $scope.User.RegCode == null &&
+            $scope.User.ProfileType != "User"
+          ) {
+            alertify.error("RegCode Can not be Blank");
+            Valid = false;
+          }
+          if (
+            $scope.User.Services == null &&
+            $scope.User.ProfileType != "User"
+          ) {
+            alertify.error("Services Can not be Blank");
+            Valid = false;
+          }
+          if ($scope.User.PWD == null) {
+            alertify.error("Password Can not be Blank");
+            Valid = false;
+          }
+
+          var data = angular.toJson($scope.User);
+
+          if (!Valid) return;
+
+          $http
+            .post("assets/api/SignUpApi.php", data)
+            .then(function (response) {
+              if (response.data.Status == "Success")
+                location.assign("index.html");
+              else {
+                alertify.error(response.data.Message);
+              }
+            });
+        };
+        $scope.SelectProfile = function (ProfileType) {
+          $scope.User.ProfileType = ProfileType;
+        };
+      });
+    </script>
+  </head>
+
+  <body
+    ng-app="myApp"
+    ng-controller="customersCtrl"
+    id="Body"
+    style="font-size: 14px"
+  >
+    <div ng-include src="'menu.php'"></div>
+    <div class="container" style="margin-top: 20px">
+      <h6 class="text-secondary">Welcome New User</h6>
+    </div>
+    <hr />
+    <div class="container" style="margin-top: 20px">
+      <div class="card">
+        <div class="card-header bg-primary">
+          <h6 class="mb-0">Select Profile Type - {{ProfileType}}</h6>
+        </div>
+        <ul class="list-group list-group-flush" style="margin: 0">
+          <li
+            class="list-group-item d-flex"
+            style="cursor: pointer"
+            ng-class="(User.ProfileType=='User')?'bg-success text-white':''"
+            ng-click="SelectProfile('User')"
+          >
+            <span class="d-flex flex-fill align-items-center"
+              >I am a User / Patient</span
+            ><img src="assets/img/male_user.png" style="width: 48px" />
+          </li>
+          <li
+            class="list-group-item d-flex"
+            style="cursor: pointer"
+            ng-class="(User.ProfileType=='Doctor')?'bg-success text-white':''"
+            ng-click="SelectProfile('Doctor')"
+          >
+            <span class="d-flex flex-fill align-items-center"
+              >I am a Doctor</span
+            ><img
+              src="assets/img/People%20Doctor%20Male64.png"
+              style="width: 48px"
+            />
+          </li>
+          <li
+            class="list-group-item d-flex"
+            style="cursor: pointer"
+            ng-class="(User.ProfileType=='MedicalShop')?'bg-success text-white':''"
+            ng-click="SelectProfile('MedicalShop')"
+          >
+            <span class="d-flex flex-fill align-items-center"
+              >I am a Chemist / Shop Owner</span
+            ><img src="assets/img/Shop.png" />
+          </li>
+          <li
+            class="list-group-item d-flex"
+            style="cursor: pointer"
+            ng-class="(User.ProfileType=='Pathology')?'bg-success text-white':''"
+            ng-click="SelectProfile('Pathology')"
+          >
+            <span class="d-flex flex-fill align-items-center"
+              >Hospital Representative</span
+            ><img src="assets/img/Symbol%2064.png" style="width: 53px" />
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="container" style="margin-top: 20px">
+      <div class="card">
+        <div class="card-header text-white bg-primary">
+          <h6 class="text-white mb-0">Genral Information</h6>
+        </div>
+        <div class="card-body">
+          <form name="SignUpForm">
+            <div class="form-group" ng-hide="User.ProfileType=='User'">
+              <label>Registration Code</label
+              ><input
+                class="form-control form-control-sm"
+                type="text"
+                name="RegCode"
+                ng-model="User.RegCode"
+                placeholder="Enter Tin Number / Doctor Reg. Code"
+              />
+            </div>
+            <div class="form-group">
+              <label>Name / Shop Name</label
+              ><input
+                class="form-control form-control-sm"
+                type="text"
+                name="Name"
+                pattern="[a-zA-Z .]{2,50}"
+                required
+                ng-model="User.UserName"
+                placeholder="Enter Name / Business Name"
+              />
+            </div>
+            <div class="form-group">
+              <label>Mobile</label
+              ><input
+                class="form-control form-control-sm"
+                type="text"
+                name="Mobile"
+                ng-model="User.Mobile"
+                pattern="[6789][0-9]{9}"
+                required
+                maxlength="10"
+                placeholder="10 Digit Mobile Number"
+              />
+            </div>
+            <div class="form-group">
+              <label>Email</label
+              ><input
+                class="form-control form-control-sm"
+                type="email"
+                placeholder="Enter Mail Id"
+                name="Email"
+                required
+                ng-model="User.Email"
+              />
+            </div>
+            <div class="form-group">
+              <label>Password</label
+              ><input
+                class="form-control form-control-sm"
+                type="password"
+                placeholder="Enter Password Id"
+                required
+                name="PWD"
+                ng-model="User.PWD"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Address + ZipCode</label
+              ><textarea
+                class="form-control form-control-sm"
+                name="Address"
+                ng-model="User.Address"
+                required
+                placeholder="Full Address"
+              ></textarea>
+            </div>
+            <div class="form-group" ng-hide="User.ProfileType=='User'">
+              <label>Services / Products</label
+              ><textarea
+                class="form-control form-control-sm"
+                name="Services"
+                ng-model="User.Services"
+                placeholder="IE Child Specialist / 24x7 Medicine Shop"
+              ></textarea>
+            </div>
+          </form>
+          <div class="form-group text-right">
+            <div class="btn-group" role="group">
+              <button
+                class="btn btn-primary"
+                ng-disabled="SignUpForm.$invalid"
+                ng-click="SignUp()"
+                type="button"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

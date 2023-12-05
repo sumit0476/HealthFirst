@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http, $location) {
+
+            $scope.Result = null;
+            //$scope.Cough = true;
+
+            $scope.Calculate = function () {
+                var result = 0;
+                if ($scope.Cough) result = result + 12.5;
+                if ($scope.Fever) result = result + 12.5;
+                if ($scope.ShortBreath) result = result + 12.5;
+                if ($scope.SoarThroat) result = result + 12.5;
+                if ($scope.HeadAche) result = result + 12.5;
+                if ($scope.AboveAge) result = result + 12.5;
+                if ($scope.Weakness) result = result + 12.5;
+                if ($scope.TestIndications) result = result + 12.5;
+
+                if (result >= 60) $scope.Result = "Likely to be Covid Positive ";
+                else $scope.Result = "Likely to be Safe";
+
+            }
+            $scope.Check = function () {
+               
+                console.log($scope.Cough);
+                $scope.Calculate();
+
+            }
+        });
+
+       
+        function Transition(Page) {
+
+            location.assign(Page);
+
+        }
+
+    </script>
+</head>
+
+<body ng-app="myApp" ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+
+    <div class="container mt-5">
+        <h5 class="text-danger">Covid Test</h5>
+    </div>
+
+    <hr />
+    <div class="container mt-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 ng-show="Result!=null" class="card-title">Result - {{Result}}</h5>
+            </div>
+            <form>
+                <div class="form-row" style="padding-right: 10px;padding-left: 25px;">
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input ng-model="Cough" type="checkbox" class="custom-control-input" id="formCheck-1" />
+                            <label class="custom-control-label" for="formCheck-1">Cough</label></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input ng-model="Fever" type="checkbox" class="custom-control-input" id="formCheck-2" />
+                            <label class="custom-control-label" for="formCheck-2">Fever</label></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" style="padding-right: 10px;padding-left: 25px;">
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input ng-model="ShortBreath" type="checkbox" class="custom-control-input" id="formCheck-3" />
+                            <label class="custom-control-label" for="formCheck-3">Short Breath</label></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input type="checkbox" ng-model="SoarThroat" class="custom-control-input" id="formCheck-4" />
+                            <label class="custom-control-label" for="formCheck-4">Soar Throat</label></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" style="padding-right: 10px;padding-left: 25px;">
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input type="checkbox" ng-model="HeadAche" class="custom-control-input" id="formCheck-5" />
+                            <label class="custom-control-label" for="formCheck-5">Head Ache</label></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input type="checkbox" ng-model="AboveAge" class="custom-control-input" id="formCheck-6" />
+                            <label class="custom-control-label" for="formCheck-6">Age 60 +</label></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" style="padding-right: 10px;padding-left: 25px;">
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input type="checkbox" ng-model="Weakness" class="custom-control-input" id="formCheck-7" />
+                            <label class="custom-control-label" for="formCheck-7">Weakness</label></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                            <input type="checkbox" ng-model="TestIndications" class="custom-control-input" id="formCheck-8" />
+                            <label class="custom-control-label" for="formCheck-8">Test Indications</label></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col" style="padding: 19px;"><button class="btn btn-primary btn-block" ng-click="Check()" type="button">Calculate</button></div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

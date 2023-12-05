@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http, $location, $interval) {
+
+            $scope.Messages = [];
+            $scope.User = {};
+            $scope.OtherUser = {};
+            $scope.NewMessage = ""; $scope.MessagesCount = 0;
+            $scope.QueryStringToJSON = function () {
+                var pairs = location.search.slice(1).split('&');
+                var result = {};
+                pairs.forEach(function (pair) {
+                    pair = pair.split('=');
+                    result[pair[0]] = decodeURIComponent(pair[1] || '');
+                });
+                return JSON.parse(JSON.stringify(result));
+            }
+            $scope.QueryStringOb = $scope.QueryStringToJSON();
+            if ($scope.QueryStringOb.OthersID == null) { location.assign("search.html"); return; }
+
+            $scope.Load = function () {
+                var ID = $scope.OthersID = $scope.QueryStringOb.OthersID;
+
+                $http.get("assets/api/GetUserApi.php?UID=" + $scope.QueryStringOb.OthersID).then(function (response) {
+                    if (response.data.Status=="Error"){location.assign("search.html"); return; }
+                    $scope.OtherUser = response.data.Data;
+                    
+                    $http.get("assets/api/GetSelfUser.php").then(function (response) {
+                        
+                        if (response.data == "Error") { location.assign("login.html"); }
+                        else {
+                            $scope.User = response.data;
+                            
+                            $scope.GetConversation($scope.OtherUser.UID);
+                        }
+                    });
+
+
+                });
+                
+
+
+               
+            }
+            $scope.GetConversation = function () {
+                var ID = $scope.OtherUser.UID;
+                //alert(ID);
+                $http.get("assets/api/GetConversation.php?OthersID=" + ID).then(function (response) {
+                    Load();
+                    if (response.data.Values.length >0) {
+                        $scope.Messages = response.data.Values;
+                       
+                        if ($scope.MessagesCount < response.data.Values.length) {
+                            $scope.MessagesCount = response.data.Values.length;
+                            window.scrollTo(300, 22500);
+                        } 
+                    }
+                    else {  }//alertify.error(response.data.Values);
+                });
+            }
+            $scope.Load();
+            $interval($scope.GetConversation, 5000);
+
+            function Reload() { alertify.success('Refreshed');}
+            $scope.GoTo = function (ID) { location.assign('conversation.php' + ID); }
+            $scope.SendMessage=function()
+            {
+                $http.get("assets/api/SendMessage.php?OthersID=" + $scope.OthersID + "&Message=" + $scope.NewMessage).then(function (response) {
+                    //alert(JSON.stringify(response.data));
+                    if (response.data.Status == 'Success') {
+
+                        var NewMessageOb = { "SenderID": $scope.User.UID, "RecieverID": $scope.OthersID, "Message": $scope.NewMessage, "MessageDateTime": "2021-06-02 22:10:20", "Seen": "1" };
+                        $scope.Messages.push(NewMessageOb);
+                        $scope.NewMessage = "";
+                    }
+                    else { alertify.error(response.data.Message); }
+                });
+            }
+
+        });
+
+        function Load() {
+            $('#Body').attr('hidden', false);
+            $('#Body').fadeIn('slow', 'swing', function () { });
+        }
+        function Transition(Page) {
+
+            location.assign(Page);
+
+        }
+
+    </script>
+</head>
+
+<body ng-app="myApp" hidden ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+    <div class="container d-flex" style="margin-top: 20px;">
+        <h6 class="text-secondary d-flex flex-fill align-items-center"><a href="messages.html" class="btn btn-primary border rounded-circle" type="button"><i class="fa fa-arrow-left"></i></a>&nbsp;{{OtherUser.UserName}}</h6><img src="assets/img/People%20Doctor%20Male64.png" style="width: 48px;">
+    </div>
+    <hr>
+    <div id="ChatBody" class="container" style="height: 100%;margin-bottom: 70px;">
+        <div class="row" ng-repeat="Message in Messages" >
+            <div class="col" ng-class="(Message.SenderID==User.UID)?'d-flex justify-content-end':''">
+                <div class="shadow-sm" ng-class="(Message.SenderID==User.UID)?'bg-success':'bg-primary'" style="width: 80%;border-radius: 15px;margin-top: 5px;margin-bottom: 5px;">
+                    <p class="text-left text-white" style="padding: 15px;padding-top: 10px;margin-bottom: 0px;padding-bottom: 0px;">{{Message.Message}}</p>
+                    <p class="text-right text-white" style="padding-right: 12px;padding-bottom: 0px;margin-bottom: 6px;">{{Message.MessageDateTime}}</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <nav class="navbar navbar-light navbar-expand fixed-bottom bg-white shadow" style="padding: 0px;">
+        <div class="container-fluid">
+            <form class="form-inline" style="width: 100%;box-shadow: 0px 4px 20px;padding: 10px;">
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-star"></i></span></div><input class="form-control" type="text" ng-model="NewMessage"  placeholder="Type Message here ...">
+                    <div class="input-group-append"><button class="btn btn-primary" type="button" ng-click="SendMessage()"><i class="fa fa-send"></i></button></div>
+                </div>
+            </form>
+        </div>
+    </nav>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http, $location) {
+
+            $scope.SelectedMedicines = []; $scope.Medicines = [];
+            $scope.QueryStringToJSON = function () {
+                var pairs = location.search.slice(1).split('&');
+                var result = {};
+                pairs.forEach(function (pair) {
+                    pair = pair.split('=');
+                    result[pair[0]] = decodeURIComponent(pair[1] || '');
+                });
+                return JSON.parse(JSON.stringify(result));
+            }
+            $scope.QueryStringOb = $scope.QueryStringToJSON();
+            $scope.ID = 1; $scope.CheckOut = false;
+            $scope.User = {};
+           
+            $scope.Load = function () {
+
+               
+                if ($scope.QueryStringOb.UID != null) { $scope.ID = $scope.QueryStringOb.UID; }
+                else {
+
+                    $http.get("assets/api/GetSelfUser.php").then(function (response) {
+                        if (response.data) {
+
+                            $scope.User = response.data;
+                            if ($scope.User.UID != null) $scope.ID = $scope.User.UID;
+                            alert($scope.ID);
+                        }
+                        else { alertify.error(response.data.Message); }
+                    });
+
+
+                }
+                
+               // alert($scope.ID);
+                $http.get("assets/api/GetMedicines.php?UID=" + $scope.ID).then(function (response) {
+                    if (response.data.Status == 'Success') { $scope.Medicines = response.data.Values; alert(Json.stringify(response.data.Values)); }
+                    else { alertify.error("No records to display"); }
+                });
+
+            }
+            $scope.Load();
+
+            $scope.Select=function(Medicine)
+            {
+                if (!$scope.SelectedMedicines.includes(Medicine)) {
+                    $scope.SelectedMedicines.push(Medicine);
+                    Medicine.Quantity = 1;
+                }
+                else $scope.SelectedMedicines.splice($scope.SelectedMedicines.indexOf(Medicine), 1);
+            }
+            $scope.Remove = function (Medicine) {$scope.SelectedMedicines.splice($scope.SelectedMedicines.indexOf(Medicine), 1);}
+            $scope.CheckOutNow = function () { $scope.CheckOut = true; }
+            $scope.BackToSelect = function () { $scope.CheckOut = false; }
+
+            $scope.Save=function()
+            {
+               
+                var data = angular.toJson($scope.SelectedMedicines); 
+                $http.post("assets/api/PlaceOrder.php", data).then(function (response) {
+                    if (response.data.Status == 'Success') location.assign('myorders.html'); else
+                     alert(JSON.stringify(response.data));// alertify.error(response.data.Message);
+                });
+
+            }
+            $scope.Increment = function (Medicine) { Medicine.Quantity++; }
+            $scope.Decrement = function (Medicine) { if (Medicine.Quantity>1) Medicine.Quantity--; }
+
+
+        });
+      
+
+       
+    </script>
+</head>
+
+<body ng-app="myApp"ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+    <div class="container d-flex" style="margin-top: 20px;">
+        <h6 class="text-secondary d-flex flex-fill align-items-center">XYD Shop - Medicines</h6><img src="assets/img/People%20Doctor%20Male64.png" style="width: 48px;">
+    </div>
+    <hr>
+    <div class="container" style="margin-top: 20px;" ng-hide="CheckOut">
+        <div class="card shadow">
+            <div class="card-header bg-primary d-flex align-items-center">
+                <h6 class="flex-fill"><button class="btn btn-success btn-sm" type="button"><i class="fa fa-arrow-left"></i></button>&nbsp;Items - {{SelectedMedicines.length}}</h6>
+                <div><a ng-show="User.UID!=null" class="btn btn-primary btn-sm border rounded border-white">Add</a></div>
+                <button ng-show="SelectedMedicines.length > 0 " ng-click="CheckOutNow()" class="btn btn-primary btn-sm" type="button">Check Out</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                <form >
+                                    <input class="form-control form-control-sm" type="text" name="Keyword" ng-model="Keyword" placeholder="Name of Medicine">
+                                </form>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="Medicine in Medicines | filter : Keyword" style="cursor:pointer;" ng-class="SelectedMedicines.includes(Medicine)?'table-primary':''">
+                            <td ng-click="Select(Medicine)">
+                            <p class="flex-fill" style="margin-bottom: 2px;"> {{Medicine.MedicineName}}</p><span style="margin-left: 10px;"><i class="fa fa-rupee"></i> {{Medicine.Price}} /-</span>
+                            </td>
+                            <td ng-show="User.UID!=null" class="text-right" style="width: 53px;"><button class="btn btn-danger btn-sm border rounded" type="button" style="max-height: 31px;"><i class="fa fa-close" style="max-height: 14px;"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="margin-top: 20px;" ng-show="CheckOut">
+        <div class="card shadow">
+            <div class="card-header bg-primary d-flex align-items-end">
+                <button class="btn btn-success btn-sm" type="button" ng-click="BackToSelect()"><i class="fa fa-arrow-left"></i></button>
+                <h6 class="d-flex flex-fill align-items-center">&nbsp;Point of Sale</h6>
+                <div><a class="btn btn-primary btn-sm border rounded border-white" role="button" ng-click="Save()">Place Order</a></div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr></tr>
+                        <tr ng-repeat="Medicine in SelectedMedicines">
+                            <td>
+                                <p class="flex-fill">&nbsp;{{Medicine.MedicineName}}</p>
+                                <p>Cost : {{Medicine.Quantity * Medicine.Price}}</p>
+                                <div class="input-group input-group-sm" style="max-width: 155px;">
+                                    <div class="input-group-prepend"><button ng-click="Decrement(Medicine)" class="btn btn-warning"><i class="fa fa-minus"></i></button></div>
+                                    <input class="form-control" type="text" value="1" ng-model="Medicine.Quantity" >
+                                    <div class="input-group-append"><button ng-click="Increment(Medicine)" class="btn btn-success" type="button"><i class="fa fa-plus"></i></button></div>
+                                </div> 
+                            </td>
+                            <td class="text-right"><button class="btn btn-danger btn-sm border rounded" type="button" style="max-height: 31px;" ng-click="Remove(Medicine)"><i class="fa fa-close" style="max-height: 14px;"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

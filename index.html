@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http, $location) {
+
+            $scope.Email = $scope.PWD = null;
+
+            $scope.Login = function () {
+                $http.get("assets/api/LoginApi.php?Email=" + $scope.Email + "&PWD=" + $scope.PWD)
+                .then(function (response) {
+
+                    if (response.data.Status == 'Success') { location.assign('myprofile.html'); return; }
+                    else {
+                        alertify.error(response.data.Message);
+                    }
+
+
+                });
+
+
+            }
+
+        });
+
+        function Load() {
+            $('#Body').attr('hidden', false);
+            $('#Body').fadeIn('fast', 'swing', function () { });
+        }
+        function Transition(Page) {
+
+            location.assign(Page);
+
+        }
+
+    </script>
+</head>
+
+<body ng-app="myApp" onload="Load()" ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+   <div class="container mt-5" >
+    <h1 class="text-danger">Welcome User</h1>
+</div>
+    <hr>
+    <div class="container mt-5">
+        <div onclick="location.assign('covidtest.html');" role="alert" class="alert alert-info shadow" style="border-radius: 21px; cursor: pointer">
+            <h5 class="alert-heading"><i class="fa fa-check"></i> Covid Test | Check</h5>
+            <hr style="margin-top: 7px;margin-bottom: 3px;" /><span>Have a quick Test on Symptoms Basis</span>
+        </div>
+
+        <div onclick="location.assign('search.html');" class="alert alert-primary shadow" role="alert" style="border-radius: 21px;cursor:pointer">
+            <h5 class="alert-heading"><i class="fa fa-search"></i>&nbsp;Search Help</h5>
+            <hr style="margin-top: 7px;margin-bottom: 3px;"><span>Doctor |&nbsp;Medical Shop | Pathology | Hospital</span>
+        </div>
+        <div onclick="location.assign('messages.html');" class="alert alert-success shadow" role="alert" style="border-radius: 21px; cursor: pointer">
+            <h5 class="alert-heading"><i class="fa fa-envelope-o"></i>&nbsp;My Inbox</h5>
+            <hr style="margin-top: 7px;margin-bottom: 3px;"><span>Doctors Advices | Appointment Confirmations</span>
+        </div>
+        <div onclick="location.assign('myprofile.html');" class="alert alert-danger shadow" role="alert" style="border-radius: 21px; cursor: pointer">
+            <h5 class="alert-heading"><i class="fa fa-user"></i>&nbsp;My Profile</h5>
+            <hr style="margin-top: 7px;margin-bottom: 3px;"><span>Update Profile Information | Get More Visible</span>
+        </div>
+        <div onclick="location.assign('medicinesearch.html');" role="alert" class="alert alert-warning shadow" style="border-radius: 21px;">
+            <h5 class="alert-heading"><i class="fa fa-user"></i> Medicine Search</h5>
+            <hr style="margin-top: 7px;margin-bottom: 3px;" /><span>Search Medical shops having medicine</span>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

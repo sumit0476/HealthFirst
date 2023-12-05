@@ -1,0 +1,77 @@
+[{
+    "Question":"Gender:",
+    "Option1":"Male",
+    "Option2":"Female",
+    "Option3":"Others",
+    "Option4":"Preffer not to say"
+},
+{
+    "Question":"How would you rate your overall physical health?",
+    "Option1":"Excellent",
+    "Option2":"Average",
+    "Option3":"Poor",
+    "Option4":"Not sure"
+    
+},
+{
+    "Question":"How would you rate your overall mental health?",
+    "Option1":"Excellent",
+    "Option2":"Average",
+    "Option3":"Poor",
+    "Option4":"Not sure"   
+},
+{
+    "Question":"During the past 4 weeks, how often has your mental health affected your ability to get work done?",
+    "Option1":"Very often",
+    "Option2":"Sometimes",
+    "Option3":"Not so often",
+    "Option4":"Not at all"
+    
+},
+{
+    "Question":"Have you particularly felt low or down for more than 2 weeks in a row?",
+    "Option1":"Very often",
+    "Option2":"Sometimes",
+    "Option3":"Not so often",
+    "Option4":"Not at all"
+    
+},
+{
+    "Question":"Have you noticed any change in your diet?",
+    "Option1":"Yes,I eat too much",
+    "Option2":"Yes,I don't feel hungry",
+    "Option3":"Not much",
+    "Option4":"No change"
+    
+},
+{
+    "Question":"When was the last time you felt good about yourself?",
+    "Option1":"Few days ago",
+    "Option2":"Few weeks ago",
+    "Option3":"Few mnths ago",
+    "Option4":"Don't remember"
+
+},
+{
+    "Question":"Have you seen a therapist in the recent past?",
+    "Option1":"Yes",
+    "Option2":"No"
+    
+},
+{
+    "Question":"How many hours do you sleep per day?",
+    "Option1":"Less than 4",
+    "Option2":"4-6",
+    "Option3":"7-9",
+    "Option4":"9+"
+    
+},
+{
+    "Question":"Are you going through an emotional situation?",
+    "Option1":"Yes",
+    "Option2":"No"
+    
+}
+     
+
+]

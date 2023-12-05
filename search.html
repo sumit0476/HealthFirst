@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Real Time Medical Help</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/Google-Style-Login.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/alertifyjs/alertify.min.js "></script>
+    <link rel="stylesheet" href="assets/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="assets/alertifyjs/css/themes/default.min.css" />
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-sanitize.min.js"></script>
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http, $location) {
+            $scope.Title = $scope.Mobile = $scope.Address = $scope.City = ''; $scope.Cost = $scope.Capacity = 0;
+            $scope.UserGender = 'M'; $scope.SelectedCity = 'Lucknow';
+            $scope.ProfileType = ['Delhi', 'Mumbai', 'Banglore', 'Chennai', 'NCA', 'Kolkata', 'Lucknow', 'Kanpur'];
+            $scope.Ads = $scope.Users = [];
+            $scope.SelectedHobbies = [];
+            $scope.Doctors = []; $scope.Pathologies = []; $scope.Hospitals = []; $scope.MedicalShops = [];
+            $scope.SearchingFor = 'RoomMates';
+
+
+            $scope.QueryStringToJSON = function () {
+                var pairs = location.search.slice(1).split('&');
+
+                var result = {};
+                pairs.forEach(function (pair) {
+                    pair = pair.split('=');
+                    result[pair[0]] = decodeURIComponent(pair[1] || '');
+                });
+
+                return JSON.parse(JSON.stringify(result));
+            }
+            $scope.QueryStringOb = $scope.QueryStringToJSON();
+
+           
+            $scope.Search = function()
+            {
+                 $http.get("assets/api/GetUsers.php?all").then(function (response) {
+                    $scope.Users = response.data;
+                    //alert(JSON.stringify($scope.Users.length));
+                    $scope.Doctors = []; $scope.Pathologies = []; $scope.Hospitals = []; $scope.MedicalShops = [];
+                    for (var n = 0; n < $scope.Users.length; n++) {
+                        if ($scope.Users[n].ProfileType == 'Doctor') $scope.Doctors.push($scope.Users[n]);
+                        else if ($scope.Users[n].ProfileType == 'Pathology') $scope.Pathologies.push($scope.Users[n]);
+                        else if ($scope.Users[n].ProfileType == 'Hospital') $scope.Hospitals.push($scope.Users[n]);
+                        else if ($scope.Users[n].ProfileType == 'MedicalShop') $scope.MedicalShops.push($scope.Users[n]);
+                    }
+
+                });
+                
+                //$http.get("assets/api/GetUsers.php?Keyword=" + $scope.Keyword).then(function (response) {
+                //    $scope.Users = response.data;
+                //    //alert(JSON.stringify($scope.Users.length));
+                //    $scope.Doctors = []; $scope.Pathologies = []; $scope.Hospitals = []; $scope.MedicalShops = [];
+                //    for (var n = 0; n < $scope.Users.length; n++) {
+                //        if ($scope.Users[n].ProfileType == 'Doctor') $scope.Doctors.push($scope.Users[n]);
+                //        else if ($scope.Users[n].ProfileType == 'Pathology') $scope.Pathologies.push($scope.Users[n]);
+                //        else if ($scope.Users[n].ProfileType == 'Hospital') $scope.Hospitals.push($scope.Users[n]);
+                //        else if ($scope.Users[n].ProfileType == 'MedicalShop') $scope.MedicalShops.push($scope.Users[n]);
+                //    }
+                    
+                //});
+                
+
+            }
+            $scope.Search();
+
+
+            
+
+          
+
+            $scope.SetGender = function (Gender) { $scope.UserGender = Gender; }
+            $scope.SelectHobby = function (Hobby) {
+                if (!$scope.SelectedHobbies.includes(Hobby)) {
+                    $scope.SelectedHobbies.push(Hobby);
+
+                } else { $scope.SelectedHobbies.splice($scope.SelectedHobbies.indexOf(Hobby), 1); }
+                $scope.FilterUsersAsHobbies();
+            }
+            $scope.SetSearchingFor = function (SearchingFor) { $scope.SearchingFor = SearchingFor; }
+           
+
+            $scope.Transition = function (Page) { location.assign(Page); }
+
+
+        });
+
+        function Load() {
+            $('#Body').attr('hidden', false);
+            $('#Body').fadeIn('fast', 'swing', function () { });
+        }
+        function Transition(Page) { location.assign(Page); }
+
+    </script>
+</head>
+
+<body ng-app="myApp" onload="Load()" ng-controller="customersCtrl" id="Body" style="font-size: 14px;">
+    <div ng-include src="'menu.php'"></div>
+    <div class="container" style="margin-top: 20px;">
+        <div class="input-group input-group-sm">
+            <div class="input-group-prepend"><span class="input-group-text">Fetch</span></div>
+            <input class="form-control" type="text" ng-model="Keyword" name="Keyword" placeholder="Keyword / ZipCode">
+            <div class="input-group-append"><button class="btn btn-primary" ng-click="Search()" type="button">Go!</button></div>
+        </div>
+    </div>
+    <hr style="margin-bottom: 0px;">
+    <div class="container" style="margin-top: 9px;" ng-show="Users.length>0">
+        <div>
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1">Shops {{MedicalShops.length}}</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2">Doctors {{Doctors.length}}</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3">Hospitals {{Hospitals.length}}</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-4">Pathology {{Pathologies.length}}</a></li>
+
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" role="tabpanel" id="tab-1">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="MedicalShop in MedicalShops | filter : Keyword" ng-click="Transition('profile.html?UID='+MedicalShop.UID)">
+                            <div class="media" style="cursor:pointer;">
+                                <div class="media-body">
+                                    <a href="profile.html?UID={{MedicalShop.UID}}"><h6><img class="mr-3" src="assets/img/Shop.png" style="width: 32px;">{{MedicalShop.UserName}}</h6></a>
+                                    <hr style="margin-top: 8px;margin-bottom: 15px;">
+                                    <p></p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-map-marker"></i>&nbsp;{{MedicalShop.Address}}</p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-phone"></i>&nbsp;+91-{{MedicalShop.Mobile}}</p>
+                                </div>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="tab-pane fade" role="tabpanel" id="tab-2">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="Doctor in Doctors | filter : Keyword" style="cursor:pointer" ng-click="Transition('profile.html?UID='+ Doctor.UID)">
+                            <div class="media">
+                                <div class="media-body">
+                                    <h6><img class="mr-3" src="assets/img/People%20Doctor%20Male64.png" style="width: 32px;">{{Doctor.UserName}}</h6>
+                                    <hr style="margin-top: 8px;margin-bottom: 15px;">
+                                    <p></p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-map-marker"></i>&nbsp;{{Doctor.UserName}}</p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-phone"></i>&nbsp;+91-{{Doctor.Mobile}}</p>
+                                </div>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="tab-pane fade" role="tabpanel" id="tab-3">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="Hospital in Hospitals | filter : Keyword" style="cursor:pointer" ng-click="Transition('profile.html?UID='+ Hospital.UID)">
+                            <div class=" media">
+                                <div class="media-body">
+                                    <h6><img class="mr-3" src="assets/img/Symbol%2064.png" style="width: 32px;">{{Hospital.UserName}}</h6>
+                                    <hr style="margin-top: 8px;margin-bottom: 15px;">
+                                    <p></p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-map-marker"></i>&nbsp;{{Hospital.Address}}</p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-phone"></i>&nbsp;+91-{{Hospital.Mobile}}</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-pane fade" role="tabpanel" id="tab-4">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="Pathology in Pathologies | filter : Keyword" style="cursor:pointer" ng-click="Transition('profile.html?UID='+ Pathology.UID)">
+                            <div class="media">
+                                <div class="media-body">
+                                    <h6><img class="mr-3" src="assets/img/Documents CardiacMonitor.png" style="width: 32px;">{{Pathology.UserName}}</h6>
+                                    <hr style="margin-top: 8px;margin-bottom: 15px;">
+                                    <p></p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-map-marker"></i>&nbsp;{{Pathology.Address}}</p>
+                                    <p style="margin-top: -11px;"><i class="fa fa-phone"></i>&nbsp;+91-{{Pathology.Mobile}}</p>
+                                </div>
+                            </div>
+                        </li>
+
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>
